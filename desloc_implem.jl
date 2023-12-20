@@ -5,8 +5,15 @@ using Plots.PlotMeasures
 using LaTeXStrings
 
 global fact = zeros(typeof(big(1)*big(1)), 10000)
-fact[1] = 1
+fact[1] = 1 
 
+###
+# @func
+# factorial: Funcao para programacao dinamica de fatoriais dado o vetor global fact,
+# proporcionando um tradeoff entre memoria e desempenho
+# @params
+# x: O fatorial a ser calculado
+###
 function factorial(x::T) where T<:BigInt
     if x == 0
         return 1
@@ -25,6 +32,15 @@ function factorial(x::T) where T<:BigInt
     return fact[x]
 end
 
+###
+# @func
+# besbeam: Funcao para calculo do feixe de bessel ideal e de maneira direta
+# @param
+# psiamp: Amplitude do feixe
+# axiconang: Angulo de axicon do feixe
+# order: Ordem do feixe
+# rho, phi, z: Coordenadas espaciais cilíndricas do ponto a ser calculado
+###
 function besbeam(psiamp, axiconang, order, rho, phi, z) 
     k = 1000 * 2 * big(pi) / big(1.54) #fixed wavelength 1.54mm
     kz = k * big(cos(axiconang))
@@ -32,12 +48,25 @@ function besbeam(psiamp, axiconang, order, rho, phi, z)
     return big(psiamp * besselj(order, krho * rho) * cis(order * phi) * cis(kz * z))
 end
 
+###
+# @func
+# bsccalc: Funcao de calculo dos fatores de forma da expansao em ondas parciais
+# @param
+# n,m: numeros inteiros de acoplamento do feixe
+# axiconang: angulo de axicon do feixe expandido
+###
 function bsccalc(n, m, axiconang)
     fract = (im ^ (n - m)) * (2 * n + 1) * factorial(big(n - m)) / factorial(big(n+m))
     special = Plm(cos(axiconang), n, m)
     return fract * special 
 end
 
+###
+# @func
+# erro: Erro percentual logaritmico da aproximacao
+# @param
+# x,y,z: Coordenadas espaciais cartesianas do ponto analisado
+###
 function erro(x, y, z)
     amp = 1
     axang = deg2rad(1)
@@ -54,8 +83,17 @@ function erro(x, y, z)
     return log10(abs(exac - appr) / exac) 
 end
 
-
-function partialwavexp(psiamp, axiconang, order, r, theta, phi, x0, y0, z0, nmax)
+###
+# @func
+# partialwavexp: Expansao em ondas parciais do feixe analisado
+# @param
+# psiamp: Amplitude do feixe
+# axiconang: Angulo de axicon do feixe
+# order: Ordem do feixe
+# r, theta, phi: Coordenadas esfericas do ponto a ser analisado
+# x0, y0, z0: Coordenadas de origem do feixe
+###
+function partialwavexp(psiamp, axiconang, order, r, theta, phi, x0, y0, z0)
     k = 1000 * 2 * big(pi) / big(1.54)
     kr = k * r
     krho = k * sin(axiconang)
