@@ -1,12 +1,6 @@
 # Minimização de Erro em Ondas Parciais
 
-O projeto tem como objetivo minimizar o erro 
-
-
-Beam Shape Coefficients(BSCs),
- fun¸c˜ao de Bessel cil´ındrica
-polinˆomio associado de Legendre
-
+O projeto tem como objetivo encontrar o ponto de erro mínimo dado uma aproximação por expansão em ondas parciais de um feixe de Bessel ideal não difrativo utilizando Beam Shape Coefficients, BSCs.
 
 Este projeto foi desenvolvido na disciplina [SCC0713](https://gitlab.com/simoesusp/disciplinas/-/tree/master/SSC0713-Sistemas-Evolutivos-Aplicados-a-Robotica) e possui apenas fins educacionais. 
 
