@@ -61,13 +61,12 @@ function bsccalc(n, m, axiconang)
     return fract * special 
 end
 
-###
+
 # @func
 # erro: Erro percentual logaritmico da aproximacao
 # @param
 # x,y,z: Coordenadas espaciais cartesianas do ponto analisado
-###
-function erro(x, y, z)
+function error_function(x, y)
     amp = 1
     axang = deg2rad(1)
     ord = 1
@@ -76,11 +75,12 @@ function erro(x, y, z)
     x0 = 0
     y0 = 0
     z0 = 0
+    z = 0
     rho0 = sqrt(x0^2 + y0^2)
     phi0 = big(atan(y0, x0))
     appr = abs(partialwavexp(amp, big(axang), ord, 0, 0, 0, x - x0, y - y0, z - z0)) ^ 2
     exac = abs(besbeam(amp, big(axang), ord, sqrt(rho^2 + rho0^2 - 2 * rho * rho0 * cos(phi - phi0)), phi, z)) ^ 2
-    return log10(abs(exac - appr) / exac) 
+   return log10(abs(exac - appr) / exac) 
 end
 
 ###
@@ -118,9 +118,125 @@ function partialwavexp(psiamp, axiconang, order, r, theta, phi, x0, y0, z0)
     return psi * psiamp
 end
 
+using StatsBase
+using Random
 
 
+# Initialize population
+function init_population(npop, bounds)
+    pop = []
+    for _ in 1:npop
+        x = rand() * (bounds[1, 2] - bounds[1, 1]) + bounds[1, 1]
+        y = rand() * (bounds[2, 2] - bounds[2, 1]) + bounds[2, 1]
+        push!(pop, (x,y))
+    end
+    pop
+end
+
+# Crossover operator
+function crossover(parent1, parent2)
+    return ((parent1[1] + parent2[1]) / 2, (parent1[2] + parent2[2]) / 2)
+end
+
+# Mutation operator
+function mutate(individual, indpb, bounds)
+    newtuple = [individual...]
+    for i in 1:length(individual)
+        if rand() < indpb
+            newtuple[i] += randn() * (bounds[i, 2] - bounds[i, 1]) / 10000
+            newtuple[i] = max(min(newtuple[i], bounds[i, 2]), bounds[i, 1])
+        end
+    end
+    return (newtuple...,)
+end
+
+# Evaluate fitness
+function evaluate(population)
+    return [error_function(ind...) for ind in population]
+end
+
+function select(population, fitness, k, elitism_percentage)
+    population_size = length(population)
+    elite_size = round(Int, elitism_percentage * population_size)
+    
+    # Select the top individuals based on fitness for elitism
+    elite_indices = sortperm(fitness)[1:elite_size]
+    elite = [population[i] for i in elite_indices]
+    
+    # Select the remaining individuals using tournament selection
+    selected_indices = []
+    for _ in 1:(k - elite_size)
+        tournament_indices = sample(1:population_size, 2, replace=false)
+        winner_index = argmin(fitness[tournament_indices])
+        push!(selected_indices, tournament_indices[winner_index])
+    end
+    
+    return vcat(elite, [population[i] for i in selected_indices])
+end
 
 
+# Genetic algorithm function
+function genetic_algorithm(error_function, ngen, npop, cxpb, indpb, bounds, elitism_percentage)
+    # Set up initial population
+    population = init_population(npop, bounds)
 
+    bestFit = []
+
+    avgFit = []
+
+    offspring = []
+    
+    fitness = evaluate(population)
+
+    best_index = 0
+
+    for gen in 1:ngen
+        offspring = []
+        # Evaluate fitness
+        fitness = evaluate(population)
+        
+        # Select parents
+        parents = select(population, fitness, 2, elitism_percentage)
+        
+        # Apply crossover and mutation to create offspring
+        for i in 1:npop
+            if rand() < cxpb 
+                push!(offspring, mutate(crossover(parents[1], parents[2]), indpb, bounds))
+            else
+                push!(offspring, parents[1])
+            end
+        end
+        
+        # Replace old population with offspring
+        population = offspring
+
+        best_index = argmin(fitness)
+
+        push!(bestFit, fitness[best_index])
+        
+        push!(avgFit, mean(fitness))
+    end
+    
+    # Return the best individual and its fitness
+    return population[best_index], fitness[best_index], bestFit, avgFit
+end
+
+# Set genetic algorithm parameters
+ngen = 100
+npop = 1000
+cxpb = 0.6
+indpb = 0.1
+elitism_percentage = 0.05
+bounds = [[-0.2, -0.2] [0.2, 0.2]]
+
+# Run the genetic algorithm
+best_individual, best_fitness, bestFit, avgFit = genetic_algorithm(error_function, ngen, npop, cxpb, indpb, bounds, elitism_percentage)
+
+p = plot(1:ngen, [bestFit, avgFit], label = ["Best Fitness" "Mean Fitness"], xlabel = "Generation", ylabel = "Fitness")
+
+savefig(p, "plot.png")
+
+# Display the results
+println("Best Individual: ", best_individual)
+println("Best Fitness: ", best_fitness)
 
