@@ -4,7 +4,7 @@ O projeto tem como objetivo encontrar o ponto de erro mínimo dado uma aproxima�
 
 Este projeto foi desenvolvido na disciplina [SCC0713](https://gitlab.com/simoesusp/disciplinas/-/tree/master/SSC0713-Sistemas-Evolutivos-Aplicados-a-Robotica) e possui apenas fins educacionais. 
 
-Link da apresentação: [clique aqui]().
+Link da apresentação: [clique aqui](https://drive.google.com/file/d/1XdQnPh1N7HDIjWjLiFxOmRQNIZPdUe9t/view?usp=sharing).
 
 ## Motivação
 
@@ -31,6 +31,8 @@ Os parâmetros e funções são definidas abaixo:
 ## Resultados
 
 O resultado obtido foi satisfatório e auxilia a construção de um padrão estabelecido em um ponto de erro mínimo.
+
+![](/plot.png)
 
 ## Instalação
 
