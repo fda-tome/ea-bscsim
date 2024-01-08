@@ -12,27 +12,21 @@ Aplicação de um Algoritmo Genético a fim de comparar os resultados obtidos pe
 
 ## Implemetação
 
-O algoritmo foi desenvolvido utilizando a linguagem `Julia`. O pacote `Evolutionary` para otimização evolutiva e a função `optimize` também foram utilizadas durante a implementação.
-
-```julia
-result = Evolutionary.optimize(x -> erro(x...), zeros(3), GA(populationSize = 100, selection = susinv, crossover = DC, mutation = PLM()))
-```
+O algoritmo foi desenvolvido utilizando a linguagem `Julia`.
 
 Os parâmetros e funções são definidas abaixo:
 
-- `Evolutionary.optimize`: função utilizada para realizar otimização evolutiva.
+- `init_population(npop, bounds)`: função responsável pela inicialização da população inicial. Realizada de forma aleatória dentro dos limites do problema. 
 
-- `x -> erro(x...)`: função objetivo que está sendo otimizada. O operador `->` é usado para criar uma função anônima que recebe um vetor `x` e calcula `erro(x...)`.
+- `crossover(parent1, parent2)`: função que realiza o cruzamento entre dois indivíduos (pais) para gerar um novo indivíduo (filho). Essa função irá calcular as médias das coordenadas x e y dos pais para gerar as coordenadas do filho.
 
-- `zeros(3)`: ponto inicial para a otimização. Ele cria um vetor de zeros com três elementos.
+- `mutate(individual, indpb, bounds)`: função de mutação dos indivíduos, em que é realizada uma mutação aleatória de uma porcentagem dos indivíduos de acord com o parâmetro `indpb` definido no código. A mutação realizada é pequena e dentro dos limites.
 
-- `GA(populationSize = 100, selection = susinv, crossover = DC, mutation = PLM())`:
-   - `populationSize = 100`: Tamanho da população, ou seja, o número de indivíduos na população.
-   - `selection = susinv`: Método de seleção, neste caso, é usado o método `susinv`.
-   - `crossover = DC`: Operador de crossover, aqui é usado o operador de cruzamento discreto (`DC`).
-   - `mutation = PLM()`: Operador de mutação, neste caso, é usado o operador de mutação polinomial (`PLM`).
+- `evaluate(population)`: função que realiza o cálculo de erro para cada indivíduo da população.
 
-- `result`: resultado da otimização, que inclui informações sobre a solução ótima encontrada, o valor da função objetivo nesse ponto e outras estatísticas relacionadas à execução do algoritmo evolutivo.
+- `select(population, fitness, k, elitism_percentage)`: função de seleção dos invíduos da geração seguinte. A partir de uma porcentagem denominada `elitism_percentage` a mpopulação com o melhor fitness é copiada para a próxima geração. O restante da população é submetida ao **torneio de dois** em que são selecionados os pais da geração seguinte.
+
+- `genetic_algorithm(error_function, ngen, npop, cxpb, indpb, bounds, elitism_percentage)`: função que gera um algoritmo genético com base nas funções anteriores e nos paramêtros utilizados.
 
 ## Resultados
 
@@ -45,7 +39,6 @@ O resultado obtido foi satisfatório e auxilia a construção de um padrão esta
 Para reproduzir o programa é necessário ter instalado:
 
 - Julia v-1.9.4
-- Evolutionary
 - LegendrePolynomials
 - SpecialFunctions
 
@@ -54,11 +47,7 @@ Para reproduzir o programa é necessário ter instalado:
 Para executar, basta executar os comandos abaixo na pasta do projeto:
 
 ```
-julia
-include("desloc_implem.jl")
-using Evolutionary
-result = Evolutionary.optimize(x -> erro(x...), zeros(3), GA(populationSize = 10
-0, selection = susinv, crossover = DC, mutation =PLM()))
+julia-1.9.4 desloc_implem.jl
 ```
 
 ## Autores
